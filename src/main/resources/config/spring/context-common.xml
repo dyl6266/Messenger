@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+	<!-- 최상단 컨텍스트 -->
+	<!-- 서로 다른 서블릿 컨텍스트에 공유하는 bean을 등록 -->
+	<!-- 웹에서 사용되는 컨트롤러 등을 등록 -->
+	<!-- 서블릿 컨텍스트에서 등록된 bean을 사용할 수 없으며, 서블릿 컨텍스트와 루트 컨텍스트에서 동일한 bean을 설정할 경우, 서블릿 컨텍스트에서 설정한 bean만 작동 -->
+
+	<!-- 파일 업로드를 통해 들어오는 데이터를 처리하는 객체 -->
+	<beans:bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<beans:property name="maxUploadSize" value="10485760" />
+		<beans:property name="maxInMemorySize" value="10485760" />
+	</beans:bean>
+
+	<!-- 스프링 메시지 -->
+	<beans:bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<beans:property name="basenames">
+			<beans:list>
+				<beans:value>classpath:/messages/message_security</beans:value>
+			</beans:list>
+		</beans:property>
+		<beans:property name="fileEncodings" value="UTF-8" />
+		<beans:property name="defaultEncoding" value="UTF-8" />
+		<beans:property name="cacheSeconds" value="0" />
+	</beans:bean>
+
+	<!-- messageSource를 사용하기 위한 Accessor 설정 -->
+	<beans:bean id="messageSourceAccessor" class="org.springframework.context.support.MessageSourceAccessor">
+		<beans:constructor-arg ref="messageSource" />
+	</beans:bean>
+
+	<!-- messageSource를 사용하기 위한 MessageUtils 매핑 -->
+	<beans:bean id="message" class="com.dy.common.utils.MessageUtils">
+		<beans:property name="messageSourceAccessor" ref="messageSourceAccessor" />
+	</beans:bean>
+
+	<!-- 기본 로케일 설정 -->
+	<beans:bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver">
+		<beans:property name="defaultLocale" value="ko" />
+	</beans:bean>
+
+	<!-- Mail 전송 처리 객체 -->
+	<beans:bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<beans:property name="host" value="smtp.gmail.com" />
+		<beans:property name="port" value="587" />
+		<beans:property name="username" value="congsong2436@gmail.com" />
+		<beans:property name="password" value="vpsxkzhem!@#2018" />
+		<beans:property name="javaMailProperties">
+			<beans:props>
+				<beans:prop key="mail.transport.protocol">smtp</beans:prop>
+				<beans:prop key="mail.smtp.auth">true</beans:prop>
+				<beans:prop key="mail.smtp.starttls.enable">true</beans:prop>
+				<beans:prop key="mail.debug">true</beans:prop>
+			</beans:props>
+		</beans:property>
+	</beans:bean>
+
+	<!-- 트랜잭션 처리 -->
+	<!-- 애너테이션에서 propagation 속성에 적용 가능한 설정 -->
+	<!-- REQUIRED : 현재 진행중인 트랜잭션이 있으면 그것을 사용하고, 없으면 생성 [DEFAULT] -->
+	<!-- MANDATORY : 현재 진행중인 트랜잭션이 없으면 Exception 발생, 없으면 생성 -->
+	<!-- REQUIRES_NEW : 항상 새로운 트랜잭션을 만듦 (트랜잭션을 분리) -->
+	<!-- SUPPORTS : 현재 진행중인 트랜잭션이 있으면 그것을 사용, 없으면 그냥 진행 -->
+	<!-- NOT_SUPPORTED : 현재 진행중인 트랜잭션이 있으면 그것을 미사용, 없으면 그냥 진행 -->
+	<!-- NEVER : 현재 진행중인 트랜잭션이 있으면 Exception, 없으면 그냥 진행 -->
+	<beans:bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<beans:property name="dataSource" ref="dataSource" />
+	</beans:bean>
+
+	<!-- @Transactional 애너테이션 사용(scan)을 위한 설정 -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	<!-- action-servlet.xml과 달리, exclude-filter를 사용하여 @Controller를 제외한 나머지 영역을 bean으로 등록하는 역할을 함 -->
+	<context:component-scan base-package="com.dy" use-default-filters="false">
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
+
+</beans:beans>

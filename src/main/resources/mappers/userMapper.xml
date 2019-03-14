@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace를 통해 Query ID 매핑 -->
+<mapper namespace="user">
+
+	<!-- tb_user 테이블 프로퍼티, 컬럼 결과 매핑 -->
+	<resultMap id="userResultMap" 			type="CustomUserDetails">
+		<result property="idx"				column="idx" />
+		<result	property="email"			column="email" />			<!-- id property (PK) -->
+		<result property="password"			column="password" />
+		<result property="name"				column="name" />
+		<result property="phone"			column="phone" />
+		<result property="gender"			column="gender"				typeHandler="org.apache.ibatis.type.EnumTypeHandler" />
+		<result property="authority"		column="authority"			typeHandler="org.apache.ibatis.type.EnumTypeHandler" />
+		<result property="status"			column="status"				typeHandler="org.apache.ibatis.type.EnumTypeHandler" />
+		<result property="statusMessage"	column="status_message" />
+		<result property="originalFilename"	column="original_filename" />
+		<result property="storedFilename"	column="stored_filename" />
+		<result property="fileSize"			column="file_size" />
+		<result property="insertTime"		column="insert_time" />
+		<result property="updateTime"		column="update_time" />
+	</resultMap>
+
+	<!-- tb_user 테이블 컬럼 리스트 -->
+	<sql id="userColumns">
+		  idx
+		, email
+		, password
+		, name
+		, phone
+		, gender
+		, authority
+		, status
+		, status_message
+		, original_filename
+		, stored_filename
+		, file_size
+		, insert_time
+		, update_time
+	</sql>
+
+	<!-- 사용자 등록 -->
+	<insert id="insertUser" parameterType="CustomUserDetails" useGeneratedKeys="true" keyProperty="idx">
+		<selectKey keyProperty="idx" resultType="integer" order="BEFORE">
+			SELECT seq_tb_user_idx.NEXTVAL
+			FROM dual
+		</selectKey>
+		INSERT INTO tb_user (
+			<include refid="userColumns" />
+		) VALUES (
+			  #{idx}
+			, #{email}
+			, #{password}
+			, #{name}
+			, #{phone}
+			, #{gender}
+			, #{authority}
+			, 'Y'
+			, #{statusMessage}
+			, #{originalFilename}
+			, #{storedFilename}
+			, #{fileSize}
+			, SYSDATE
+			, NULL
+		)
+	</insert>
+
+	<!-- 사용자 정보 상세 조회 -->
+	<select id="selectUserDetail" parameterType="string" resultMap="userResultMap">
+		SELECT
+			<include refid="userColumns" />
+		FROM
+			tb_user
+		WHERE
+			email = #{email}
+	</select>
+
+	<!-- 사용자 정보 수정 -->
+	<update id="updateUser" parameterType="CustomUserDetails">
+		UPDATE tb_user
+		SET
+			update_time = SYSDATE
+			<if test="!@com.penta.common.utils.MyBatisUtils@isEmpty(password)">, password = #{password}</if>
+			<if test="!@com.penta.common.utils.MyBatisUtils@isEmpty(name)">, name = #{name}</if>
+			<if test="!@com.penta.common.utils.MyBatisUtils@isEmpty(phone)">, phone = #{phone}</if>
+			<if test="!@com.penta.common.utils.MyBatisUtils@isEmpty(gender)">, gender = #{gender}</if>
+			<if test="!@com.penta.common.utils.MyBatisUtils@isEmpty(statusMessage)">, status_message = #{statusMessage}</if>
+			<if test="!@com.penta.common.utils.MyBatisUtils@isEmpty(originalFilename)">, original_filename = #{originalFilename}</if>
+			<if test="!@com.penta.common.utils.MyBatisUtils@isEmpty(storedFilename)">, stored_filename = #{storedFilename}</if>
+			<if test="!@com.penta.common.utils.MyBatisUtils@isEmpty(fileSize)">, file_size = #{fileSize}</if>
+		WHERE
+			email = #{email}
+	</update>
+
+	<!-- 사용자 계정 비활성화 -->
+	<update id="deleteUser" parameterType="string">
+		UPDATE tb_user
+		SET
+			status = 'N'
+		WHERE
+			email = #{email}
+	</update>
+
+	<!-- 사용자 리스트 조회 -->
+	<select id="selectUserList" parameterType="CustomUserDetails" resultMap="userResultMap">
+		SELECT
+			<include refid="userColumns" />
+		FROM
+			tb_user
+		WHERE
+			status = 'Y'
+		ORDER BY
+			idx DESC,
+			authority ASC,
+			insert_time DESC
+	</select>
+
+	<!-- 전체 사용자 수 조회 -->
+	<select id="selectTotalCount" parameterType="CustomUserDetails" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			tb_user
+		WHERE
+			status = 'Y'
+	</select>
+
+</mapper>

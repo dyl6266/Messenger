@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace를 통해 Query ID 매핑 -->
+<mapper namespace="common">
+
+	<!-- tb_auth 테이블 컬럼 리스트 -->
+	<sql id="authColumns">
+		  idx
+		, key
+		, email
+		, status
+		, insert_time
+		, update_time
+	</sql>
+
+	<!-- 인증 키 등록 -->
+	<insert id="insertAuthKey" parameterType="hashmap" useGeneratedKeys="true" keyProperty="idx">
+		<selectKey keyProperty="idx" resultType="integer" order="BEFORE">
+			SELECT seq_tb_auth_idx.NEXTVAL
+			FROM dual
+		</selectKey>
+		INSERT INTO tb_auth (
+			<include refid="authColumns" />
+		) VALUES(
+			  #{idx}
+			, #{key}
+			, #{email}
+			, 'Y'
+			, SYSDATE
+			, NULL
+		)
+	</insert>
+
+	<!-- 입력한 인증 키가 유효한 번호인지 확인 (10분 초과 시 select 결과에서 제외) -->
+	<!-- TO_CHAR(SYSDATE - 1 / 24 / 6)와 같은 방식으로도 가능 -->
+	<select id="checkValidTime" parameterType="hashmap" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			tb_auth
+		WHERE
+			status = 'Y'
+		AND
+			key = #{key}
+		AND
+			email = #{email}
+		AND
+			insert_time BETWEEN TO_DATE(TO_CHAR(SYSDATE - 1 / (24 * 6), 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD HH24:MI:SS') AND SYSDATE
+	</select>
+
+	<!-- 정상적으로 처리된 인증 키 삭제 (상태 'N') -->
+	<update id="changeStatusOfAuthKey" parameterType="string">
+		UPDATE tb_auth
+		SET
+			status = 'N'
+		WHERE
+			status = 'Y'
+		AND
+			key = #{key}
+	</update>
+
+</mapper>
