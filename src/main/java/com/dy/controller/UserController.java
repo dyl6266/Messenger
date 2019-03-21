@@ -1,5 +1,7 @@
 package com.dy.controller;
 
+import java.util.HashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -16,6 +19,8 @@ import com.dy.common.domain.Result;
 import com.dy.common.service.CommonService;
 import com.dy.domain.CustomUserDetails;
 import com.dy.service.UserService;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
 /* Rest 방식을 이용하기 위한 컨트롤러 (@ResponseBody 애너테이션을 생략할 수 있음) */
@@ -87,7 +92,7 @@ public class UserController {
 	 * @param params - VO 인스턴스
 	 * @return ResponseEntity - (데이터, 상태 코드)
 	 */
-	@RequestMapping(value = "/users/", method = RequestMethod.POST)
+	@RequestMapping(value = "/users", method = RequestMethod.POST)
 	public ResponseEntity<JsonObject> checkAuthKeyAndRegister(@RequestBody CustomUserDetails params) {
 
 		/* 실패 처리에 대한 결과 JSON */
@@ -125,6 +130,34 @@ public class UserController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseEntity<>(json, HttpStatus.BAD_REQUEST);
+		}
+
+	}
+	// end of method
+
+	@RequestMapping(value = "/users/{email:.+}", headers = "Accept=*/*", produces = "application/json")
+	public ResponseEntity<JsonObject> getUserDetailInfomation(@PathVariable("email") String email) {
+		
+		/* 실패 처리에 대한 결과 JSON */
+		JsonObject json = new JsonObject();
+		json.addProperty("result", Result.FAIL.toString());
+		json.addProperty("message", "오류가 발생했습니다. 다시 시도해 주세요.");
+		
+		if ( StringUtils.isEmpty(email) == true ) {
+			return new ResponseEntity<>(json, HttpStatus.BAD_REQUEST);
+		}
+
+		CustomUserDetails userDetails = userService.selectUserDetail(email);
+		if ( ObjectUtils.isEmpty(userDetails) == true ) {
+			return new ResponseEntity<>(json, HttpStatus.BAD_REQUEST);
+		} else {
+			Gson gson = new GsonBuilder().create();
+			String jsonStr = gson.toJson(userDetails);
+			json = new JsonObject();
+			json.addProperty("result", Result.SUCCESS.toString());
+			json.addProperty("userDetails", jsonStr);
+
+			return new ResponseEntity<>(json, HttpStatus.OK);
 		}
 
 	}

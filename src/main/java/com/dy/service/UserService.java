@@ -17,18 +17,18 @@ public interface UserService {
 	/**
 	 * 사용자 정보 상세 조회
 	 * 
-	 * @param userId - PK
+	 * @param email - PK
 	 * @return CustomUserDetails - VO
 	 */
-	public CustomUserDetails selectUserDetail(String userId);
+	public CustomUserDetails selectUserDetail(String email);
 
 	/**
 	 * 사용자 계정 비활성화
 	 * 
-	 * @param userId - PK
+	 * @param email - PK
 	 * @return boolean - true or false
 	 */
-	public boolean deleteUser(String userId);
+	public boolean deleteUser(String email);
 
 	/**
 	 * 사용자 리스트 조회
