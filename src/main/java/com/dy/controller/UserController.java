@@ -135,7 +135,7 @@ public class UserController {
 	}
 	// end of method
 
-	@RequestMapping(value = "/users/{email:.+}", headers = "Accept=*/*", produces = "application/json")
+	@RequestMapping(value = "/users/{email:.+}")
 	public ResponseEntity<JsonObject> getUserDetailInfomation(@PathVariable("email") String email) {
 		
 		/* 실패 처리에 대한 결과 JSON */
@@ -151,7 +151,7 @@ public class UserController {
 		if ( ObjectUtils.isEmpty(userDetails) == true ) {
 			return new ResponseEntity<>(json, HttpStatus.BAD_REQUEST);
 		} else {
-			Gson gson = new GsonBuilder().create();
+			Gson gson = new GsonBuilder().serializeNulls().create();
 			String jsonStr = gson.toJson(userDetails);
 			json = new JsonObject();
 			json.addProperty("result", Result.SUCCESS.toString());
