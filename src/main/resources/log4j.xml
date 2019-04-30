@@ -79,7 +79,7 @@
 			<appender-ref ref="console" />
 		</logger>
 
-		<!-- 열려있는 모든 번호와 연결 수립 및 해제 이벤트 출력 (연결 문제를 찾아내는데 매우 유용 (Connection Pool 설정)) -->
+		<!-- 열려있는 모든 번호와 연결 수립 및 해제 이벤트 출력 (연결 문제를 찾아내는 데 매우 유용 (Connection Pool 설정)) -->
 		<logger name="jdbc.connection" additivity="false">
 			<level value="ERROR" />
 			<appender-ref ref="console" />

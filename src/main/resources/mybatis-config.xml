@@ -9,6 +9,7 @@
 		<setting name="jdbcTypeForNull" value="NULL" />
 	</settings>
 
+	<!-- 앨리어스 처리 -->
 	<typeAliases>
 		<package name="com.dy.domain" />
 		<package name="com.dy.common.domain" />

@@ -14,8 +14,16 @@
 
 	<!-- 애너테이션을 사용 가능하도록 해주는 설정 -->
 	<annotation-driven />
+	<beans:bean id="contentNegotiationManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+	    <beans:property name="favorPathExtension" value="false" />
+	    <!-- 아래 두 개는 필요한건지(?).. 없어도 작동엔 문제 없음 -->
+	    <beans:property name="favorParameter" value="true" />
+    	<beans:property name="ignoreAcceptHeader" value="false" />
+	</beans:bean>
+
 	<!-- AspectJ 라이브러리를 통해 Proxy 객체를 생성하는 용도로 사용 -->
 	<aop:aspectj-autoproxy />
+
 	<!-- AOP 객체 생성 -->
 	<beans:bean id="loggerAspect" class="com.dy.common.LoggerAspect" />
 
@@ -27,6 +35,21 @@
 		<beans:property name="prefix" value="/WEB-INF/jsp/" />
 		<beans:property name="suffix" value=".jsp" />
 	</beans:bean>
+
+	<!-- 메시지 컨버터 설정(?).. 어떻게 .. -->
+	<!-- <mvc:annotation-driven>
+		<mvc:message-converters>
+			<bean class="org.springframework.http.converter.StringHttpMessageConverter">
+	            <property name="supportedMediaTypes">
+	                <list>
+	                    <value>text/plain;charset=UTF-8</value>
+	                    <value>text/html;charset=UTF-8</value>
+	                    <value>application/json;charset=UTF-8</value>
+	                </list>
+	            </property>
+	        </bean>
+		</mvc:message-converters>
+	</mvc:annotation-driven> -->
 
 	<!-- Interceptor 객체 생성 -->
 	<!-- Interceptor는 Dispatcher-Servlet과 같은 위치에 등록이 되어 있어야만 정상 작동함 -->
