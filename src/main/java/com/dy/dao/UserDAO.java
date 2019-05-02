@@ -35,7 +35,7 @@ public class UserDAO extends AbstractDAO {
 	/**
 	 * 사용자 정보 수정
 	 * 
-	 * @param params - VO 클래스
+	 * @param params - VO
 	 * @return int - 쿼리 실행 횟수
 	 */
 	public int updateUser(CustomUserDetails params) {
