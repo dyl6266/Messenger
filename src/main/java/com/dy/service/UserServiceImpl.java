@@ -76,26 +76,26 @@ public class UserServiceImpl implements UserService {
 	/**
 	 * 사용자 정보 상세 조회
 	 * 
-	 * @param userId - PK
+	 * @param email - PK
 	 * @return CustomUserDetails - VO
 	 */
 	@Override
-	public CustomUserDetails selectUserDetail(String userId) {
-		return userDAO.selectUserDetail(userId);
+	public CustomUserDetails selectUserDetail(String email) {
+		return userDAO.selectUserDetail(email);
 	}
 
 	/**
 	 * 사용자 계정 비활성화
 	 * 
-	 * @param userId - PK
+	 * @param email - PK
 	 * @return boolean - true or false
 	 */
 	@Override
-	public boolean deleteUser(String userId) {
+	public boolean deleteUser(String email) {
 
 		boolean result = false;
 
-		int queryCnt = userDAO.deleteUser(userId);
+		int queryCnt = userDAO.deleteUser(email);
 		if (queryCnt > 0) {
 			result = true;
 		}

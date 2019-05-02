@@ -13,7 +13,7 @@
 	<!-- Controller와 관련된 bean은 이 파일에 설정 -->
 
 	<!-- 애너테이션을 사용 가능하도록 해주는 설정 -->
-	<annotation-driven />
+	<annotation-driven content-negotiation-manager="contentNegotiationManager" />
 	<beans:bean id="contentNegotiationManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
 	    <beans:property name="favorPathExtension" value="false" />
 	    <!-- 아래 두 개는 필요한건지(?).. 없어도 작동엔 문제 없음 -->

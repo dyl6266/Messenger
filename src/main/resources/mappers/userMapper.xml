@@ -99,7 +99,10 @@
 		SET
 			status = 'N'
 		WHERE
-			email = #{email}
+			email IN
+			<foreach item="item" collection="idx", open="(" close=")" separator=",">
+				#{item}
+			</foreach>
 	</update>
 
 	<!-- 사용자 리스트 조회 -->
